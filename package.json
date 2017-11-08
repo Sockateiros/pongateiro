@@ -1,0 +1,9 @@
+{
+	"name": "socket-pong",
+	"version": "0.0.1",
+	"description": "pong with web sockets",
+	"dependencies": {
+		"express": "^4.15.2",
+		"socket.io": "^2.0.4"
+	}
+}
