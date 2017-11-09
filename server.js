@@ -5,45 +5,66 @@ var io = require('socket.io')(http);
 
 app.use(express.static('public'));
 
-var example = require('./example');
-
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
 
-var leftPaddle = null;
-var rightPaddle = null;
+////////////
+
+var gameManager = require('./gameManager');
+var p5 = require('./public/libraries/p5.min');
+// var p5_dom = require('./public/addons/libraries/p5.dom.min');
+// var p5_sound = require('./public/addons/libraries/p5.sound.min');
+// var p5_play = require('./public/addons/libraries/p5.play');
+
+var leftPaddleSocket = null;
+var rightPaddleSocket = null;
+
+// Config (To add json later)
+var leftPaddleID = 0;
+var leftPaddleX = 50;
+var leftPaddleY = 200;
+var rightPaddleID = 1;
+var rightPaddleX = 500;
+var rightPaddleY = 200;
+var paddleLength = 200;
+var paddleThickness = 30;
+// var paddleColor = p5.color(255, 0, 0);
+
+var leftPaddle = {	id: leftPaddleID,
+					x: leftPaddleX, y: leftPaddleY,
+					length: paddleLength, thickness: paddleThickness,
+					color: paddleColor
+				};
+
+var rightPaddle = {	id: rightPaddleID,
+					x: rightPaddleX, y: rightPaddleY,
+					length: paddleLength, thickness: paddleThickness,
+					color: paddleColor
+				};
 
 io.on('connection', function(socket) {
-	socket.on('mouse', changeColor);
+	socket.on('mouse', emitNewColor);
 
-	if (leftPaddle === null) {
-		leftPaddle = socket;
-		socket.emit('paddleID', 0);
+	if (leftPaddleSocket === null) {
+		leftPaddleSocket = socket;
+		socket.emit('setup', leftPaddle);
+		console.log(leftPaddle);
 	}
 	else {
-		rightPaddle = socket;
-		socket.emit('paddleID', 1);
+		rightPaddleSocket = socket;
+		socket.emit('setup', rightPaddle);
+		console.log(rightPaddle);
 	}
 
 });
 
 http.listen(3000, function(){
 	console.log('listening on *:3000');
-	example.foo();
 });
 
-var color = 123;
-
-function changeColor(color) {
+function emitNewColor(color) {
 	console.log('A mouse was clicked');
-
-	if (color == 123) {
-		color = 0;
-	}
-	else {
-		color = 123;
-	}
-
-	io.emit('color', color);
+	var newColor = gameManager.changeColor(color);
+	io.emit('color', newColor);
 }

@@ -4,16 +4,19 @@ var bgColor = 123;
 
 var socket;
 
+var paddle = null;
+
 function setup() {
 	createCanvas(canvasWidth, canvasHeight);
 	socket = io.connect('http://localhost:3000');
 	socket.on('color', changeColor);
-	socket.on('paddleID', paddleIDToString);
+	socket.on('setup', setupPaddle);
 }
 
 function draw() {
-	fill(bgColor);
-	rect(25, 25, canvasWidth, canvasHeight);
+	if (paddle !== null) {
+		paddle.draw();
+	}
 }
 
 function mousePressed() {
@@ -25,11 +28,14 @@ function changeColor(newColor) {
   bgColor = newColor;
 }
 
-function paddleIDToString(id) {
-	if (id === 0) {
+function setupPaddle(newPaddle) {
+	console.log(newPaddle);
+	if (newPaddle.id === 0) {
 		console.log('You are left paddle');
+		paddle = new Paddle(newPaddle.x, newPaddle.y, newPaddle.length, newPaddle.thickness, newPaddle.color);
 	}
 	else {
 		console.log('You are right paddle');	
+		paddle = new Paddle(newPaddle.x, newPaddle.y, newPaddle.length, newPaddle.thickness, newPaddle.color);
 	}
 }
