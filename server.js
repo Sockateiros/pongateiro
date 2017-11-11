@@ -50,37 +50,40 @@ io.on('connection', (socket) => {
 			leftPaddleSocket = null;
 			leftPaddle.connected = 0;
 			console.log('Left player disconnected');
-			io.emit('player_disconnection', leftPaddle);
+			io.emit('enemy_disconnection', leftPaddle);
 		}
 		else if (rightPaddleSocket === socket) {
 			rightPaddleSocket = null;
 			rightPaddle.connected = 0;
 			console.log('Right player disconnected');
-			io.emit('player_disconnection', rightPaddle);
+			io.emit('enemy_disconnection', rightPaddle);
 		}
 		else {
 			console.log('A spectator disconnected');
 		}
 	});
 
-	// // If a player refreshes the browser (Not working... but close?)
-	//if (socket === leftPaddleSocket || socket === rightPaddleSocket) {
-	//	return;
-	//}
-
 	if (leftPaddleSocket === null) {
 		leftPaddleSocket = socket;
 		leftPaddle.connected = 1;
 		console.log('Left player connected.');
+		socket.emit('setupPlayer', leftPaddle);
+		if (rightPaddle.connected === 1) {
+			socket.emit('setupEnemy', rightPaddle);
+		}
+		io.emit('newPlayer', leftPaddle);
 	}
 	else if (rightPaddleSocket === null) {
 		rightPaddleSocket = socket;
 		rightPaddle.connected = 1;
 		console.log('Right player connected.');
+		socket.emit('setupPlayer', rightPaddle);
+		if (leftPaddle.connected === 1) {
+			socket.emit('setupEnemy', leftPaddle);
+		}
+		io.emit('newPlayer', rightPaddle);
 	}
 	else {
 		console.log('Sorry, game is full. You are a spectator.');
 	}
-
-	io.emit('player_connection', paddles);
 });
