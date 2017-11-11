@@ -16,6 +16,14 @@ function Paddle(id, x, y, length, thickness, col) {
 		drawSprite(this.sprite);
 	}
 	
+	this.setPosition = function(y) {
+		this.sprite.position.y = y;
+	}
+
+	this.getID = function() {
+		return this.id;
+	}
+
 	this.setup();
 	this.createSprites();
 }

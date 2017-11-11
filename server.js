@@ -24,12 +24,12 @@ function onPlayerDisconnected(_socketID) {
 	for (var i = 0; i < paddles.length; i++) {
 		if (paddles[i].socketID === _socketID) {
 			
-			// Restore that player's data
+			// Restore that paddle's data
 			paddles[i].socketID = null;
 			paddles[i].connected = 0;
 
 			// Inform the other players
-			io.emit('enemy_disconnection', paddles[i]);
+			io.emit('enemy_disconnection');
 
 			console.log('Player disconnected');
 			return;
@@ -74,9 +74,18 @@ function onPlayerConnected(_socket) {
 	console.log('Spectator connected');
 }
 
+function updatePosition(paddleID, newPos) {
+	if (paddles[paddleID]!== null) {
+		paddles[paddleID].y = newPos;
+	}
+	io.emit('enemyMoved', paddleID, newPos);
+}
+
 io.on('connection', (socket) => {
 	
 	onPlayerConnected(socket);
+
+	socket.on('updatePosition', updatePosition);
 
 	socket.on('disconnect', (reason) => {
 		onPlayerDisconnected(socket.id);

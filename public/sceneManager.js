@@ -3,46 +3,73 @@ var socket;
 var player = null;
 var enemy = null;
 
+var canvasWidth = 800;
+var canvasHeight = 400;
+
+
+function onEnemyDisconnection() {
+	console.log('onEnemyDisconnection called');
+	enemy = null;
+}
+
+function setupPlayer(_player) {
+	console.log('setupPlayer called');
+	player = new Paddle(_player.id, _player.x, _player.y, _player.length, _player.thickness, _player.color);
+}
+
+function setupEnemy(_player) {
+	console.log('setupEnemy called');
+	enemy = new Paddle(_player.id, _player.x, _player.y, _player.length, _player.thickness, _player.color);
+}
+
+function onNewPlayer(_player) {
+	console.log('onNewPlayer called');
+	if (_player.id === player.id) {
+		return;
+	}
+	enemy = new Paddle(_player.id, _player.x, _player.y, _player.length, _player.thickness, _player.color);	
+}
+
+function getPaddlesPosition() {
+
+	// Update player position
+	if (player !== null) {
+		var newPosition = constrain(mouseY, 0, canvasHeight);
+		player.setPosition(newPosition);
+		socket.emit('updatePosition', player.getID(), newPosition);
+	}
+}
+
+// To-do: Loop through all players
+function updatePlayerPosition(playerID, newPos) {
+	if (player.getID() === playerID) {
+		player.setPosition(newPos);
+	}
+	else if (enemy.getID() === playerID) {
+		enemy.setPosition(newPos);
+	}
+}
+
 function setup() {
-	createCanvas(800, 400);
+	createCanvas(canvasWidth, canvasHeight);
 	socket = io.connect('http://localhost:3000');
 	socket.on('setupPlayer', setupPlayer);
 	socket.on('setupEnemy', setupEnemy);
 	socket.on('newPlayer', onNewPlayer);
 	socket.on('enemy_disconnection', onEnemyDisconnection);
+	socket.on('enemyMoved', updatePlayerPosition);
 }
 
 function draw() {
 	
 	background(255);
 	
+	getPaddlesPosition();
+
 	if (player !== null) {
 		player.draw();
 	}
 	if (enemy !== null) {
 		enemy.draw();
 	}
-}
-
-function onEnemyDisconnection(paddle) {
-	console.log('onEnemyDisconnection called');
-	enemy = null;
-}
-
-function setupPlayer(paddle) {
-	console.log('setupPlayer called');
-	player = new Paddle(paddle.id, paddle.x, paddle.y, paddle.length, paddle.thickness, paddle.color);
-}
-
-function setupEnemy(paddle) {
-	console.log('setupEnemy called');
-	enemy = new Paddle(paddle.id, paddle.x, paddle.y, paddle.length, paddle.thickness, paddle.color);
-}
-
-function onNewPlayer(paddle) {
-	console.log('onNewPlayer called');
-	if (paddle.id === player.id) {
-		return;
-	}
-	enemy = new Paddle(paddle.id, paddle.x, paddle.y, paddle.length, paddle.thickness, paddle.color);	
 }
