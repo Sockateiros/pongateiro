@@ -36,7 +36,7 @@ function getPaddlesPosition() {
 	if (player !== null) {
 		var newPosition = constrain(mouseY, 0, canvasHeight);
 		player.setPosition(newPosition);
-		socket.emit('updatePosition', player.getID(), newPosition);
+		socket.emit('cMsg_UpdatePosition', player.getID(), newPosition);
 	}
 }
 
@@ -53,11 +53,11 @@ function updatePlayerPosition(playerID, newPos) {
 function setup() {
 	createCanvas(canvasWidth, canvasHeight);
 	socket = io.connect('http://localhost:3000');
-	socket.on('setupPlayer', setupPlayer);
-	socket.on('setupEnemy', setupEnemy);
-	socket.on('newPlayer', onNewPlayer);
-	socket.on('enemy_disconnection', onEnemyDisconnection);
-	socket.on('enemyMoved', updatePlayerPosition);
+	socket.on('sMsg_SetupPlayer', setupPlayer);
+	socket.on('sMsg_SetupEnemy', setupEnemy);
+	socket.on('sMsg_NewPlayer', onNewPlayer);
+	socket.on('sMsg_EnemyDisconnection', onEnemyDisconnection);
+	socket.on('sMsg_EnemyMoved', updatePlayerPosition);
 }
 
 function draw() {

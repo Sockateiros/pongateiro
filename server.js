@@ -29,7 +29,7 @@ function onPlayerDisconnected(_socketID) {
 			paddles[i].connected = 0;
 
 			// Inform the other players
-			io.emit('enemy_disconnection');
+			io.emit('sMsg_EnemyDisconnection');
 
 			console.log('Player disconnected');
 			return;
@@ -45,7 +45,7 @@ function onPlayerDisconnected(_socketID) {
 function setupEnemies(_socket, playerIdx) {
 	for (var j = 0; j < paddles.length; j++) {
 		if (j !== playerIdx && paddles[j].connected === 1) {
-			_socket.emit('setupEnemy', paddles[j]);
+			_socket.emit('sMsg_SetupEnemy', paddles[j]);
 		}
 	} 
 }
@@ -61,12 +61,12 @@ function onPlayerConnected(_socket) {
 
 			console.log('Player connected');
 			// Send data to the new player about itself
-			_socket.emit('setupPlayer', paddles[i]);
+			_socket.emit('sMsg_SetupPlayer', paddles[i]);
 			
 			setupEnemies(_socket, i);
 
 			// Send the new player's data to all other players
-			io.emit('newPlayer', paddles[i]);
+			io.emit('sMsg_NewPlayer', paddles[i]);
 
 			return;
 		}
@@ -78,14 +78,14 @@ function updatePosition(paddleID, newPos) {
 	if (paddles[paddleID]!== null) {
 		paddles[paddleID].y = newPos;
 	}
-	io.emit('enemyMoved', paddleID, newPos);
+	io.emit('sMsg_EnemyMoved', paddleID, newPos);
 }
 
 io.on('connection', (socket) => {
 	
 	onPlayerConnected(socket);
 
-	socket.on('updatePosition', updatePosition);
+	socket.on('cMsg_UpdatePosition', updatePosition);
 
 	socket.on('disconnect', (reason) => {
 		onPlayerDisconnected(socket.id);
