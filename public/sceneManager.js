@@ -13,6 +13,9 @@ function setup() {
 }
 
 function draw() {
+	
+	background(255);
+	
 	if (player !== null) {
 		player.draw();
 	}
@@ -21,7 +24,8 @@ function draw() {
 	}
 }
 
-function onEnemyDisconnection(player) {
+function onEnemyDisconnection(paddle) {
+	console.log('onEnemyDisconnection called');
 	enemy = null;
 }
 
