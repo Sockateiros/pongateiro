@@ -14,18 +14,20 @@ module.exports = {
 		var leftPaddle = {	id: leftPaddleID,
 							x: leftPaddleX, y: leftPaddleY,
 							length: paddleLength, thickness: paddleThickness,
-							color: paddleColor, connected: 0
+							color: paddleColor, connected: 0,
+							socketID: null
 						};
 
 		var rightPaddle = {	id: rightPaddleID,
 							x: rightPaddleX, y: rightPaddleY,
 							length: paddleLength, thickness: paddleThickness,
-							color: paddleColor, connected: 0
+							color: paddleColor, connected: 0,
+							socketID: null
 						};
 
 		//var paddles = {left: leftPaddle, right: rightPaddle};
 
-		return {left: leftPaddle, right: rightPaddle};
+		return [leftPaddle, rightPaddle];
 	}
 
 };

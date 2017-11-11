@@ -15,51 +15,70 @@ http.listen(3000, function(){
 	console.log('listening on *:3000');
 });
 
-
 var paddles = config.load();
-var leftPaddleSocket = null;
-var rightPaddleSocket = null;
+
+// Handle player disconnections
+function onPlayerDisconnected(_socketID) {
+
+	// Check which player disconnected
+	for (var i = 0; i < paddles.length; i++) {
+		if (paddles[i].socketID === _socketID) {
+			
+			// Restore that player's data
+			paddles[i].socketID = null;
+			paddles[i].connected = 0;
+
+			// Inform the other players
+			io.emit('enemy_disconnection', paddles[i]);
+
+			console.log('Player disconnected');
+			return;
+		}
+	}
+	// If none of the players disconnected, it must have been a spectator
+	console.log('Spectator disconnected');
+}
+
+// Send data about all other players to the new player
+// <playerIdx> represents the index in the <paddles> array 
+//   corresponding to the new player
+function setupEnemies(_socket, playerIdx) {
+	for (var j = 0; j < paddles.length; j++) {
+		if (j !== playerIdx && paddles[j].connected === 1) {
+			_socket.emit('setupEnemy', paddles[j]);
+		}
+	} 
+}
+
+// Handle player connections
+function onPlayerConnected(_socket) {
+
+	// Check which player connected
+	for (var i = 0; i < paddles.length; i++){
+		if (paddles[i].socketID === null) {
+			paddles[i].socketID = _socket.id;
+			paddles[i].connected = 1;
+
+			console.log('Player connected');
+			// Send data to the new player about itself
+			_socket.emit('setupPlayer', paddles[i]);
+			
+			setupEnemies(_socket, i);
+
+			// Send the new player's data to all other players
+			io.emit('newPlayer', paddles[i]);
+
+			return;
+		}
+	}
+	console.log('Spectator connected');
+}
 
 io.on('connection', (socket) => {
-	socket.on('disconnect', (reason) => {
-		if (leftPaddleSocket === socket) {
-			leftPaddleSocket = null;
-			paddles.left.connected = 0;
-			console.log('Left player disconnected');
-			io.emit('enemy_disconnection', paddles.left);
-		}
-		else if (rightPaddleSocket === socket) {
-			rightPaddleSocket = null;
-			paddles.right.connected = 0;
-			console.log('Right player disconnected');
-			io.emit('enemy_disconnection', paddles.right);
-		}
-		else {
-			console.log('A spectator disconnected');
-		}
-	});
+	
+	onPlayerConnected(socket);
 
-	if (leftPaddleSocket === null) {
-		leftPaddleSocket = socket;
-		paddles.left.connected = 1;
-		console.log('Left player connected.');
-		socket.emit('setupPlayer', paddles.left);
-		if (paddles.right.connected === 1) {
-			socket.emit('setupEnemy', paddles.right);
-		}
-		io.emit('newPlayer', paddles.left);
-	}
-	else if (rightPaddleSocket === null) {
-		rightPaddleSocket = socket;
-		paddles.right.connected = 1;
-		console.log('Right player connected.');
-		socket.emit('setupPlayer', paddles.right);
-		if (paddles.left.connected === 1) {
-			socket.emit('setupEnemy', paddles.left);
-		}
-		io.emit('newPlayer', paddles.right);
-	}
-	else {
-		console.log('Sorry, game is full. You are a spectator.');
-	}
+	socket.on('disconnect', (reason) => {
+		onPlayerDisconnected(socket.id);
+	});
 });
