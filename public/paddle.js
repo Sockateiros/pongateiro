@@ -4,7 +4,8 @@ function Paddle(id, x, y, length, thickness, col) {
 		this.id = id;
 		this.length = length;
 		this.thickness = thickness;
-		this.sprite = createSprite(x, y, this.thickness, this.length);
+		
+		this.createSprites();
 	}
 
 	this.createSprites = function () {
@@ -25,5 +26,4 @@ function Paddle(id, x, y, length, thickness, col) {
 	}
 
 	this.setup();
-	this.createSprites();
 }

@@ -2,6 +2,7 @@ var socket;
 
 var player = null;
 var enemy = null;
+var ball = null;
 
 var canvasWidth = 800;
 var canvasHeight = 400;
@@ -15,6 +16,11 @@ function onEnemyDisconnection() {
 function setupPlayer(_player) {
 	console.log('setupPlayer called');
 	player = new Paddle(_player.id, _player.x, _player.y, _player.length, _player.thickness, _player.color);
+}
+
+function setupBall(_ball) {
+	console.log('setupBall called');
+	ball = new Ball(_ball.x, _ball.y, _ball.size, _ball.color);
 }
 
 function setupEnemy(_player) {
@@ -50,20 +56,31 @@ function updatePlayerPosition(playerID, newPos) {
 	}
 }
 
+function updateBallPosition(x, y) {
+	if (ball !== null) {
+		ball.setPosition(x, y);
+	}
+}
+
 function setup() {
 	createCanvas(canvasWidth, canvasHeight);
 	socket = io.connect('http://localhost:3000');
 	socket.on('sMsg_SetupPlayer', setupPlayer);
+	socket.on('sMsg_SetupBall', setupBall);
 	socket.on('sMsg_SetupEnemy', setupEnemy);
 	socket.on('sMsg_NewPlayer', onNewPlayer);
 	socket.on('sMsg_EnemyDisconnection', onEnemyDisconnection);
 	socket.on('sMsg_EnemyMoved', updatePlayerPosition);
+	socket.on('sMsg_BallPosition', updateBallPosition);
 }
 
 function draw() {
 	
-	background(255);
+	background(0);
 	
+	// Asks the server for ball position
+	socket.emit('cMsg_BallPosition');
+
 	getPaddlesPosition();
 
 	if (player !== null) {
@@ -71,5 +88,8 @@ function draw() {
 	}
 	if (enemy !== null) {
 		enemy.draw();
+	}
+	if (ball !== null) {
+		ball.draw();
 	}
 }

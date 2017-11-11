@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var config = require('./config');
+var gameManager = require('./gameManager');
 
 app.use(express.static('public'));
 
@@ -15,7 +16,8 @@ http.listen(3000, function(){
 	console.log('listening on *:3000');
 });
 
-var paddles = config.load();
+var paddles = config.loadPaddles();
+var ball = config.loadBall();
 
 // Handle player disconnections
 function onPlayerDisconnected(_socketID) {
@@ -60,8 +62,9 @@ function onPlayerConnected(_socket) {
 			paddles[i].connected = 1;
 
 			console.log('Player connected');
-			// Send data to the new player about itself
+			// Send data to the new player about itself and the ball
 			_socket.emit('sMsg_SetupPlayer', paddles[i]);
+			_socket.emit('sMsg_SetupBall', ball);
 			
 			setupEnemies(_socket, i);
 
@@ -84,6 +87,11 @@ function updatePosition(paddleID, newPos) {
 io.on('connection', (socket) => {
 	
 	onPlayerConnected(socket);
+
+	// Send ball position to the player that asked for it
+	socket.on('cMsg_BallPosition', () => {
+		socket.emit('sMsg_BallPosition', ball.x, ball.y);
+	});
 
 	socket.on('cMsg_UpdatePosition', updatePosition);
 
