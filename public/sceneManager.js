@@ -20,7 +20,7 @@ function setupPlayer(_player) {
 
 function setupBall(_ball) {
 	console.log('setupBall called');
-	ball = new Ball(_ball.x, _ball.y, _ball.size, _ball.color);
+	ball = new Ball(_ball.position.x, _ball.position.y, _ball.size, _ball.color);
 }
 
 function setupEnemy(_player) {

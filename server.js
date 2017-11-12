@@ -90,7 +90,10 @@ io.on('connection', (socket) => {
 
 	// Send ball position to the player that asked for it
 	socket.on('cMsg_BallPosition', () => {
-		socket.emit('sMsg_BallPosition', ball.x, ball.y);
+
+		gameManager.collisionDetection(ball, paddles, 800, 400);
+		ball.position = gameManager.calcBallPosition(ball);
+		socket.emit('sMsg_BallPosition', ball.position.x, ball.position.y);
 	});
 
 	socket.on('cMsg_UpdatePosition', updatePosition);
