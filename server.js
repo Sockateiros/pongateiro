@@ -79,9 +79,12 @@ function onPlayerConnected(_socket) {
 
 function updatePosition(paddleID, newPos) {
 	if (paddles[paddleID]!== null) {
+		paddles[paddleID].oldY = paddles[paddleID].y;
 		paddles[paddleID].y = newPos;
 	}
-	io.emit('sMsg_EnemyMoved', paddleID, newPos);
+	gameManager.collisionBallPaddles(ball, paddles);
+
+	io.emit('sMsg_EnemyMoved', paddleID, paddles[paddleID].y);
 }
 
 io.on('connection', (socket) => {

@@ -1,6 +1,6 @@
 // Let's determine which surface of the paddle the ball collided with
 // Here we suppose the hit happened where the ball has a lower intersection area
-function ReflectBallOnPaddle(currentAngle, intersection) {
+function reflectBallOnPaddle(currentAngle, intersection) {
 	var horizontalColisionArea = Math.min(Math.abs(intersection.right), 
 		Math.abs(intersection.left));
 
@@ -36,14 +36,16 @@ function collisionBallPaddles(ball, paddles) {
 			continue;
 		}
 		
+		paddles[i].y = paddles[i].oldY;
+		ball.position = Object.assign({}, ball.oldPosition);
+
 		// Arriving here means the ball collided with a paddle
-		ball.angle = ReflectBallOnPaddle(ball.angle, 
+		ball.angle = reflectBallOnPaddle(ball.angle, 
 			{right: rBallIntersect,
 			left: lBallIntersect,
 			top: tBallIntersect,
 			bottom: bBallIntersect
 		});
-
 	}
 }
 
@@ -65,6 +67,8 @@ function collisionBallWalls(ball, screenWidth, screenHeight) {
 
 module.exports = {
 
+	collisionBallPaddles:collisionBallPaddles,
+
 	collisionDetection:function(ball, paddles, screenWidth, screenHeight) {
 		collisionBallPaddles(ball, paddles);
 		collisionBallWalls(ball, screenWidth, screenHeight);
@@ -73,8 +77,10 @@ module.exports = {
 	// DONT NEED TO RETURN BALL POSITION, <ball> OBJECT IS REFERENCED
 	calcBallPosition: function (ball) {
 
-		ball.position.x += Math.cos(ball.angle) * ball.speed;
-		ball.position.y -= Math.sin(ball.angle) * ball.speed;
+		ball.oldPosition = Object.assign({}, ball.position);
+
+		ball.position.x = ball.oldPosition.x + Math.cos(ball.angle) * ball.speed;
+		ball.position.y = ball.oldPosition.y - Math.sin(ball.angle) * ball.speed;
 
 		return ball.position;
 	}
