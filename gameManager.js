@@ -57,6 +57,8 @@ function collisionBallWalls(ball, screenWidth, screenHeight) {
 	if (ball.position.x + ball.size*.5 > screenWidth || 
 		ball.position.x - ball.size*.5 < 0 ) {
 
+		ball.position = Object.assign({}, ball.oldPosition);
+
 		// Vertical surface reflection
 		ball.angle = Math.PI - ball.angle;		
 	}
@@ -64,6 +66,8 @@ function collisionBallWalls(ball, screenWidth, screenHeight) {
 	if (ball.position.y - ball.size*.5 < 0 ||
 		ball.position.y + ball.size*.5 > screenHeight) {
 
+		ball.position = Object.assign({}, ball.oldPosition);
+	
 		// Horizontal surface reflection
 		ball.angle *= -1;		
 	}
@@ -79,12 +83,12 @@ module.exports = {
 	},
 
 	// DONT NEED TO RETURN BALL POSITION, <ball> OBJECT IS REFERENCED
-	calcBallPosition: function (ball) {
+	calcBallPosition: function (ball, deltaT) {
 
 		ball.oldPosition = Object.assign({}, ball.position);
 
-		ball.position.x = ball.oldPosition.x + Math.cos(ball.angle) * ball.speed;
-		ball.position.y = ball.oldPosition.y - Math.sin(ball.angle) * ball.speed;
+		ball.position.x = ball.oldPosition.x + Math.cos(ball.angle) * ball.speed * deltaT;
+		ball.position.y = ball.oldPosition.y - Math.sin(ball.angle) * ball.speed * deltaT;
 
 		return ball.position;
 	}

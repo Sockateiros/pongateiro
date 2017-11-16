@@ -66,7 +66,7 @@ function updateBallPosition(x, y) {
 
 function setup() {
 	createCanvas(canvasWidth, canvasHeight);
-	socket = io.connect('http://10.8.11.59:3000');
+	socket = io.connect('http://localhost:3000');
 	socket.on('sMsg_SetupPlayer', setupPlayer);
 	socket.on('sMsg_SetupBall', setupBall);
 	socket.on('sMsg_SetupEnemy', setupEnemy);

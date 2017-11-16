@@ -19,6 +19,8 @@ http.listen(3000, function(){
 var paddles = config.loadPaddles();
 var ball = config.loadBall();
 
+var prevTs = new Date().getTime();
+
 // Handle player disconnections
 function onPlayerDisconnected(_socketID) {
 
@@ -55,6 +57,7 @@ function setupEnemies(_socket, playerIdx) {
 // Handle player connections
 function onPlayerConnected(_socket) {
 
+	console.log("Ball speed" + ball.speed);
 	// Check which player connected
 	for (var i = 0; i < paddles.length; i++){
 		if (paddles[i].socketID === null) {
@@ -93,9 +96,14 @@ io.on('connection', (socket) => {
 
 	// Send ball position to the player that asked for it
 	socket.on('cMsg_BallPosition', () => {
-
 		gameManager.collisionDetection(ball, paddles, 800, 400);
-		ball.position = gameManager.calcBallPosition(ball);
+		
+
+		var newTs = new Date().getTime();
+		var deltaT = (newTs - prevTs) * .001; // Time in seconds
+		prevTs = newTs;
+		ball.position = gameManager.calcBallPosition(ball, deltaT);
+		
 		socket.emit('sMsg_BallPosition', ball.position.x, ball.position.y);
 	});
 
