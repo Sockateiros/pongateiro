@@ -19,6 +19,10 @@ function reflectBallOnPaddle(currentAngle, intersection) {
 function collisionBallPaddles(ball, paddles) {
 	for (var i = 0; i < paddles.length; i++) {
 
+		if (paddles[i].connected == 0) {
+			continue;
+		}
+
 		var rBallIntersect = ball.position.x + ball.size*.5 - (paddles[i].x - paddles[i].thickness*.5);
 		if (rBallIntersect <= 0) {
 			continue;
